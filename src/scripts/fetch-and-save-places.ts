@@ -1,4 +1,4 @@
-import { fetchAndSavePlaces } from "@/places.js";
+import { fetchAndSavePlaces } from "@/places";
 
 console.log("Fetching places...");
 await fetchAndSavePlaces();

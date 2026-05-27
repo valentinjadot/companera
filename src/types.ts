@@ -1,4 +1,4 @@
-import * as ApiTypes from "./api/types.js";
+import * as ApiTypes from "./api/types";
 
 export type { ApiTypes };
 

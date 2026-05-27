@@ -1,7 +1,7 @@
-import { api, API_BASE } from "./api/client.js";
-import type { ApiTypes, DecoratedChannel } from "@/types.js";
-import { allPlacesFromCache } from "./places.js";
-import { pickRandomItem } from "./utils.js";
+import { api, API_BASE } from "./api/client";
+import type { ApiTypes, DecoratedChannel } from "@/types";
+import { allPlacesFromCache } from "./places";
+import { pickRandomItem } from "./utils";
 
 export async function getRandomDecoratedChannel(): Promise<DecoratedChannel> {
   const places = await allPlacesFromCache();

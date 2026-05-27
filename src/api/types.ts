@@ -1,4 +1,4 @@
-import type { components, paths } from "./specs/generated/schema.js";
+import type { components, paths } from "./specs/generated/schema";
 
 // Response obj
 export type PlacesResponse =
