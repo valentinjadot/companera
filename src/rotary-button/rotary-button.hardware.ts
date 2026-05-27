@@ -1,15 +1,15 @@
-import { Gpio } from "onoff";
-import { onCleanup } from "@/utils/cleanup";
-import { PINS } from "@/gpio";
+import { RIO } from "rpi-io";
 
-const clickPin = new Gpio(PINS.rotaryClick, "in", "falling", {
-  debounceTimeout: 50,
+import { ROTARY_ENCODER } from "@/gpio/pins";
+import { onCleanup } from "@/utils/cleanup";
+
+const button = new RIO(ROTARY_ENCODER.KEY, "input");
+
+onCleanup(() => {
+  button.monitoringStop();
+  button.close();
 });
 
-onCleanup(() => clickPin.unexport());
-
 export function onRotaryClick(handler: () => void) {
-  clickPin.watch((err) => {
-    if (!err) handler();
-  });
+  button.monitoringStart(() => handler(), "falling", 50);
 }

@@ -19,7 +19,7 @@ Click the encoder to load a random radio station. The station name shows on the 
 Install in this order:
 
 - [Homebrew](https://brew.sh) (macOS package manager)
-  - `brew install git`
+  - `brew install git ffmpeg`
   - `brew install nodenv` → then `nodenv init` (follow instructions), `nodenv install 20`, `nodenv global 20`
     - `npm install -g pnpm`
 
@@ -100,8 +100,8 @@ Once connected via SSH, run these commands one block at a time.
 # Fix locale warnings
 sudo apt install -y locales-all
 
-# I2C tools, build toolchain, audio player
-sudo apt install -y i2c-tools build-essential python3 mpv alsa-utils
+# I2C tools, GPIO (libgpiod dev headers for rpi-io), build toolchain, audio player
+sudo apt install -y i2c-tools libgpiod-dev build-essential python3 ffmpeg alsa-utils
 ```
 
 ### 4.2 — Enable I2C (for the OLED) and I2S (for the DAC)
@@ -177,16 +177,15 @@ speaker-test -c 2 -t wav
 ```bash
 git clone https://github.com/valentinjadot/companera.git
 cd companera
-pnpm install
-pnpm approve-builds
+pnpm run hardware:setup   # needs libgpiod-dev from step 4.1
 ```
 
-When prompted, select **both `i2c-bus` and `epoll`** (space to mark, enter to confirm, `y` to approve). These are native modules that need to compile on the Pi — takes about 1 minute on a Zero.
+`hardware:*` scripts compile native modules on the Pi (`i2c-bus`, `rpi-io`). `rpi-io` is in `ignoredBuiltDependencies` because pnpm cannot build it on macOS. Takes about 1 minute on a Zero.
 
 ## 6. Run it
 
 ```bash
-pnpm tsx src/index.ts
+pnpm start
 ```
 
 You should see the welcome message on the OLED. Click the rotary encoder — a random station loads and starts playing through the DAC 🎉
@@ -195,14 +194,20 @@ You should see the welcome message on the OLED. Click the rotary encoder — a r
 
 ## Development workflow
 
-Editing code directly on the Pi Zero is painful (it's too slow for VSCode/Cursor Remote-SSH). The easiest setup:
+Editing code directly on the Pi Zero is painful (it's too slow for VSCode/Cursor Remote-SSH). Edit on your Mac, sync with Mutagen, run on the Pi.
 
-1. Clone the repo on your computer too, edit there with your favorite editor.
-2. Install [mutagen](https://mutagen.io) on your computer to sync files automatically:
+### One-time setup (Mac)
+
+1. Clone the repo on your computer.
+2. Install [mutagen](https://mutagen.io):
 
    ```bash
    brew install mutagen-io/mutagen/mutagen
+   ```
 
+3. Create the sync session (only once):
+
+   ```bash
    cd /path/to/companera
 
    mutagen sync create --name=companera --ignore-vcs \
@@ -210,19 +215,78 @@ Editing code directly on the Pi Zero is painful (it's too slow for VSCode/Cursor
      "$(pwd)" <username>@companera.local:/home/<username>/companera
    ```
 
-3. Keep an SSH terminal open on the Pi to run `pnpm tsx src/index.ts`.
+4. Install deps on your Mac (no `hardware:*` — mocks are used):
 
-**Important**: never sync `node_modules`. Native modules (`i2c-bus`, `epoll`) must be compiled on the target hardware. Run `pnpm install` separately on each machine.
+   ```bash
+   pnpm install
+   ```
+
+   `ffmpeg` from Homebrew (Prerequisites) handles stream playback on macOS. GPIO/OLED use mocks — run `pnpm start` locally to test audio through your Mac speakers.
+
+### Day-to-day
+
+**Mac** — edit code in Cursor/VSCode. Files sync automatically.
+
+After the Pi reboots or reconnects, resume the sync:
+
+```bash
+pnpm sync:resume
+```
+
+Check it's working (both sides should say `Connected: Yes`, status `Watching for changes`):
+
+```bash
+mutagen sync list
+```
+
+If sync looks stuck:
+
+```bash
+mutagen sync flush companera
+```
+
+**Pi** — SSH in and run the app:
+
+```bash
+ssh <username>@companera.local
+cd ~/companera
+pnpm start
+```
+
+### First install on the Pi (or after adding dependencies)
+
+Native modules must be compiled on the Pi — never sync `node_modules`. They're pre-approved in `pnpm-workspace.yaml`, so no interactive `pnpm approve-builds` step:
+
+```bash
+pnpm run hardware:setup
+```
+
+Or, if you already ran `pnpm install`:
+
+```bash
+pnpm run hardware:rebuild
+```
+
+| Script | What it does |
+| --- | --- |
+| `hardware:setup` | `pnpm install` + native rebuilds (Pi only) |
+| `hardware:rebuild` | `pnpm rebuild` + compile `rpi-io` |
+| `hardware:rpi-io` | Compile `rpi-io` only ([upstream docs](https://www.npmjs.com/package/rpi-io)) |
+
+Takes about 1 minute on a Zero.
+
+**Important**: run installs separately on each machine. Mutagen only syncs source files. On macOS, use `pnpm install` — not `hardware:*`.
 
 ## Troubleshooting
 
 - **`i2cdetect` shows no device**: bad OLED wiring. Check VCC and GND aren't swapped.
 - **`aplay -l` doesn't list the DAC**: you forgot to add the `dtoverlay` lines, or you didn't reboot.
-- **`Could not locate the bindings file`**: run `pnpm approve-builds`, select the native modules, then `pnpm rebuild`.
+- **`Cannot find module '../build/Release/gpio.node'`** or **`Could not locate the bindings file`**: on the Pi, run `pnpm run hardware:rpi-io` after `libgpiod-dev` and `build-essential` are installed (step 4.1).
 - **`EIO: i/o error` on the OLED**: log out and back in after `usermod -aG i2c` (or you skipped the reboot).
 - **Audio works but is distorted**: check the PCM5102A jumpers — SCK usually needs to be tied to GND.
-- **No sound at all but `speaker-test` worked**: check `mpv` is installed (`which mpv`).
-- **`Resource busy` on GPIO**: a previous run didn't clean up. Run `sudo reboot` or `echo 23 > /sys/class/gpio/unexport`.
+- **No sound / `[PLAYER] ffmpeg not found`**: install ffmpeg — `brew install ffmpeg` (Mac) or `sudo apt install ffmpeg` (Pi). Verify with `which ffmpeg`.
+- **`gpiod.h: No such file or directory`** (rpi-io build): `sudo apt install libgpiod-dev`, then `pnpm run hardware:rpi-io` on the Pi.
+- **`Permission denied` on GPIO**: you're not in the `gpio` group — run `sudo usermod -aG gpio $USER`, then log out/in or reboot.
 - **The Pi is unreachable on `.local`**: find its IP via your router admin page and use that instead.
 - **`pnpm install` is super slow / hangs**: normal on a Pi Zero, give it 5 minutes.
 

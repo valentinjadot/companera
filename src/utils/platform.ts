@@ -1,6 +1,8 @@
-import { existsSync } from "node:fs";
+import os from "node:os";
 
-export const isPi = existsSync("/dev/i2c-1");
+const RASPBERRY_PI_HOSTNAME = "companera";
+const hostname = os.hostname();
+export const isPi = hostname === RASPBERRY_PI_HOSTNAME;
 
 export async function pickImpl<T>(
   hardware: () => Promise<T>,
