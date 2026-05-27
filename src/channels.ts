@@ -38,14 +38,10 @@ export async function getRandomDecoratedChannel(): Promise<DecoratedChannel> {
   }
 
   return {
-    channel: {
-      title: randomChannel.title,
-      streamUrl,
-    },
-    place: {
-      city: randomPlace.title,
-      country: randomPlace.country,
-    },
+    streamUrl,
+    title: randomChannel.title,
+    city: randomPlace.title,
+    country: randomPlace.country,
   };
 }
 
