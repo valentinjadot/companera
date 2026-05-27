@@ -1,10 +1,16 @@
-import i2c from "i2c-bus";
-import Oled from "oled-i2c-bus";
-import font from "oled-font-5x7";
+import { getRandomDecoratedChannel } from "./channels.js";
+import { writeOnScreen } from "./screen.js";
+import { sleep } from "./utils.js";
 
-const i2cBus = i2c.openSync(1);
-const oled = new Oled(i2cBus, { width: 128, height: 64, address: 0x3c });
+async function main() {
+  writeOnScreen("Hola compañera");
+  await sleep(2000);
 
-oled.clearDisplay();
-oled.setCursor(1, 1);
-oled.writeString(font, 2, "Hola companera", 1, true);
+  writeOnScreen("Loading...");
+  const channel = await getRandomDecoratedChannel();
+  writeOnScreen(
+    `${channel.channel.title} - ${channel.place.city} (${channel.place.country})`,
+  );
+}
+
+main();

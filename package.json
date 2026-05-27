@@ -3,8 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "tsx src/index.ts",
+    "fetch-places": "tsx src/scripts/fetch-and-save-places.ts",
+    "generate-schema": "openapi-typescript ./src/api/specs/openapi.json -o ./src/api/specs/generated/schema.d.ts"
   },
   "keywords": [],
   "author": "Valentin",
@@ -12,15 +15,19 @@
   "packageManager": "pnpm@10.21.0",
   "devDependencies": {
     "@tsconfig/node-lts": "^24.0.0",
+    "@types/i2c-bus": "^5.1.2",
     "@types/node": "^25.9.1",
+    "@types/oled-font-5x7": "^1.0.0",
+    "@types/oled-i2c-bus": "^1.0.0",
     "eslint": "^10.4.0",
+    "oled-i2c-bus": "^1.0.12",
+    "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.3",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3"
   },
   "dependencies": {
     "i2c-bus": "^5.2.3",
-    "oled-font-5x7": "^1.0.3",
-    "oled-i2c-bus": "^1.0.12"
+    "oled-font-5x7": "^1.0.3"
   }
 }
