@@ -1,5 +1,5 @@
 {
-  "name": "compañera",
+  "name": "companera",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -17,5 +17,10 @@
     "prettier": "^3.8.3",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3"
+  },
+  "dependencies": {
+    "i2c-bus": "^5.2.3",
+    "oled-font-5x7": "^1.0.3",
+    "oled-i2c-bus": "^1.0.12"
   }
 }
