@@ -1,7 +1,7 @@
-import { api, API_BASE } from "./api/client";
+import { api, API_BASE } from "@/api/client";
 import type { ApiTypes, DecoratedChannel } from "@/types";
-import { allPlacesFromCache } from "./places";
-import { pickRandomItem } from "./utils";
+import { allPlacesFromCache } from "@/places";
+import { pickRandomItem } from "@/utils/helpers";
 
 export async function getRandomDecoratedChannel(): Promise<DecoratedChannel> {
   const places = await allPlacesFromCache();
@@ -23,7 +23,7 @@ export async function getRandomDecoratedChannel(): Promise<DecoratedChannel> {
   }
 
   const channelId = getChannelIdFromChannelRef(randomChannel);
-  const streamUrl = getStreamUrl(channelId);
+  const streamUrl = await resolveStreamUrl(channelId);
 
   if (!randomChannel.title) {
     throw new Error("Channel has no title");
@@ -71,4 +71,29 @@ export function getChannelIdFromChannelRef(channel: ApiTypes.Channel) {
 
 export function getStreamUrl(channelId: string) {
   return `${API_BASE}/ara/content/listen/${channelId}/channel.mp3`;
+}
+
+export async function resolveStreamUrl(channelId: string): Promise<string> {
+  const url = getStreamUrl(channelId);
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const res = await fetch(url, {
+      headers: {
+        Referer: "https://radio.garden/",
+        "User-Agent": "Mozilla/5.0",
+      },
+      redirect: "manual",
+    });
+
+    const location = res.headers.get("location");
+    if (location && res.status >= 300 && res.status < 400) {
+      return location;
+    }
+
+    if (res.status !== 401 || attempt === 1) {
+      throw new Error(`Could not resolve stream URL (${res.status})`);
+    }
+  }
+
+  throw new Error("Could not resolve stream URL");
 }

@@ -1,8 +1,8 @@
-import { getRandomDecoratedChannel } from "./channels";
-import { play } from "./player";
-import { writeOnScreen } from "./screen";
-import { sleep } from "./utils";
-import { onRotaryClick } from "./rotary-button";
+import { getRandomDecoratedChannel } from "@/channels";
+import { play } from "@/player";
+import { writeOnScreen } from "@/screen/screen";
+import { sleep } from "@/utils/helpers";
+import { onRotaryClick } from "@/rotary-button/rotary-button";
 
 async function main() {
   writeOnScreen("Hola compañera");

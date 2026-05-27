@@ -3,4 +3,5 @@ ignoredBuiltDependencies:
 
 onlyBuiltDependencies:
   - epoll
+  - ffmpeg-static
   - i2c-bus

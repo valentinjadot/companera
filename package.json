@@ -2,10 +2,14 @@
   "name": "companera",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index",
   "type": "module",
   "scripts": {
     "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
     "fetch-places": "tsx src/scripts/fetch-and-save-places.ts",
     "generate-schema": "openapi-typescript ./src/api/specs/openapi.json -o ./src/api/specs/generated/schema.d.ts"
   },
@@ -13,6 +17,13 @@
   "author": "Valentin",
   "license": "ISC",
   "packageManager": "pnpm@10.21.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "ffmpeg-static",
+      "i2c-bus",
+      "onoff"
+    ]
+  },
   "devDependencies": {
     "@tsconfig/node-lts": "^24.0.0",
     "@types/i2c-bus": "^5.1.2",
@@ -24,9 +35,11 @@
     "openapi-typescript": "^7.13.0",
     "prettier": "^3.8.3",
     "tsx": "^4.22.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.60.0"
   },
   "dependencies": {
+    "ffmpeg-static": "^5.3.0",
     "i2c-bus": "^5.2.3",
     "oled-font-5x7": "^1.0.3",
     "onoff": "^6.0.3"

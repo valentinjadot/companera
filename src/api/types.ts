@@ -1,4 +1,4 @@
-import type { components, paths } from "./specs/generated/schema";
+import type { components, paths } from "@/api/specs/generated/schema";
 
 // Response obj
 export type PlacesResponse =

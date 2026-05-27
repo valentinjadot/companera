@@ -1,6 +1,6 @@
 import { Gpio } from "onoff";
-import { PINS } from "./gpio";
-import { onCleanup } from "./cleanup";
+import { onCleanup } from "@/utils/cleanup";
+import { PINS } from "@/gpio";
 
 const clickPin = new Gpio(PINS.rotaryClick, "in", "falling", {
   debounceTimeout: 50,

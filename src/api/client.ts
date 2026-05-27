@@ -4,7 +4,7 @@ import type {
   PlaceResponse,
   PlacesResponse,
   SearchResponse,
-} from "./types";
+} from "@/api/types";
 
 export const API_BASE = "https://radio.garden/api";
 

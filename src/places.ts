@@ -1,8 +1,8 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { api } from "./api/client";
-import type { ApiTypes } from "./types";
+import { api } from "@/api/client";
+import type { ApiTypes } from "@/types";
 
 const PLACES_CACHE_PATH = join(
   dirname(fileURLToPath(import.meta.url)),
