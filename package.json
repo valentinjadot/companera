@@ -20,7 +20,12 @@
   "keywords": [],
   "author": "Valentin",
   "license": "ISC",
-  "packageManager": "pnpm@10.21.0",
+  "dependencies": {
+    "i2c-bus": "^5.2.3",
+    "node-mpv": "2.0.0-beta.2",
+    "oled-font-pack": "^1.0.1",
+    "rpi-io": "^2.1.1"
+  },
   "devDependencies": {
     "@tsconfig/node-lts": "^24.0.0",
     "@types/i2c-bus": "^5.1.2",
@@ -34,9 +39,5 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.60.0"
   },
-  "dependencies": {
-    "i2c-bus": "^5.2.3",
-    "oled-font-pack": "^1.0.1",
-    "rpi-io": "^2.1.1"
-  }
+  "packageManager": "pnpm@10.21.0"
 }

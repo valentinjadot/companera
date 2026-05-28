@@ -12,9 +12,7 @@ const LOADING_BASE_TEXT = Array.from({ length: LOADING_LINES }, () =>
   LOADING_FILL_CHAR.repeat(LOADING_CHARS_PER_LINE),
 );
 
-let interval: ReturnType<typeof setInterval> | null = null;
-
-export function renderLoadingFrame(frame: number): string {
+export function generateLoadingText(frame: number): string {
   const lines = LOADING_BASE_TEXT.map((line) => line.split(""));
 
   for (let x = 0; x < LOADING_CHARS_PER_LINE; x++) {
@@ -26,18 +24,4 @@ export function renderLoadingFrame(frame: number): string {
   }
 
   return lines.map((chars) => chars.join("")).join("\n");
-}
-
-export function startLoadingAnimation(onFrame: (text: string) => void) {
-  stopLoadingAnimation();
-  let frame = 0;
-  const paint = () => onFrame(renderLoadingFrame(frame++));
-  paint();
-  interval = setInterval(paint, LOADING_FRAME_INTERVAL_MS);
-}
-
-export function stopLoadingAnimation() {
-  if (!interval) return;
-  clearInterval(interval);
-  interval = null;
 }

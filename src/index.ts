@@ -1,5 +1,5 @@
 import { getRandomDecoratedChannel } from "@/channels";
-import { play } from "@/player/player";
+import { play, stop } from "@/player/player";
 import {
   startLoadingAnimation,
   stopLoadingAnimation,
@@ -30,6 +30,7 @@ export async function loadAndPlayRandomChannel() {
     };
     await play(channel.streamUrl, onStart);
   } catch {
+    await stop();
     await loadAndPlayRandomChannel();
   }
 }

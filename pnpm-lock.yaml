@@ -11,6 +11,9 @@ importers:
       i2c-bus:
         specifier: ^5.2.3
         version: 5.2.3
+      node-mpv:
+        specifier: 2.0.0-beta.2
+        version: 2.0.0-beta.2
       oled-font-pack:
         specifier: ^1.0.1
         version: 1.0.1
@@ -605,6 +608,9 @@ packages:
 
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
+
+  node-mpv@2.0.0-beta.2:
+    resolution: {integrity: sha512-jf1InAB6tSXYlLs53DSw7ZEGCAhuWibILMF8GU6FmX6jXvkScLfGa9B7nmrIidG8euDpi3hdnUht0PqrHlAbXA==}
 
   oled-font-pack@1.0.1:
     resolution: {integrity: sha512-vu10Fx63RJfKXcuYdgd9/6T0+u8D4GW3NP4yTJiI4pe/GV384p+O3sLxfpEYIszZjrtBxEZh/u8xXU7S9FMH6w==}
@@ -1281,6 +1287,8 @@ snapshots:
   natural-compare@1.4.0: {}
 
   node-addon-api@7.1.1: {}
+
+  node-mpv@2.0.0-beta.2: {}
 
   oled-font-pack@1.0.1: {}
 

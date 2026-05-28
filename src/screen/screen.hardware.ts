@@ -3,11 +3,9 @@ import Oled from "oled-i2c-bus";
 import FontPack from "oled-font-pack";
 import { I2C_BUS_FOR_OLED_SCREEN } from "@/gpio/pins";
 import { toCp437 } from "@/screen/cp437";
-import {
-  startLoadingAnimation as startLoading,
-  stopLoadingAnimation as stopLoading,
-} from "@/screen/loading";
+import { generateLoadingText } from "@/screen/loading";
 import { onCleanup } from "@/utils/cleanup";
+
 const i2cBus = i2c.openSync(I2C_BUS_FOR_OLED_SCREEN);
 const oled = new Oled(i2cBus, { width: 128, height: 64, address: 0x3c });
 
@@ -30,21 +28,33 @@ function drawText(text: string, wrap: boolean = OPTIONS.wrap) {
   );
 }
 
-export function startLoadingAnimation() {
-  startLoading((text) => drawText(text, false));
-}
-
-export function stopLoadingAnimation() {
-  stopLoading();
-}
-
 export function writeOnScreen(text: string) {
-  stopLoading();
+  stopLoadingAnimation();
   drawText(text);
 }
 
+let interval: ReturnType<typeof setInterval> | null = null;
+const LOADING_FRAME_INTERVAL_MS = 20;
+
+export function startLoadingAnimation() {
+  let frame = 0;
+
+  const renderLoadingFrame = () => {
+    const text = generateLoadingText(frame++);
+    drawText(text, false);
+  };
+
+  interval = setInterval(renderLoadingFrame, LOADING_FRAME_INTERVAL_MS);
+}
+
+export function stopLoadingAnimation() {
+  if (!interval) return;
+  clearInterval(interval);
+  interval = null;
+}
+
 onCleanup(() => {
-  stopLoading();
+  stopLoadingAnimation();
   oled.clearDisplay();
   i2cBus.closeSync();
 });
