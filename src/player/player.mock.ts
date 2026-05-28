@@ -1,18 +1,14 @@
 import { play as playAudio, stop as stopAudio } from "@/player/playback";
+import { onCleanup } from "@/utils/cleanup";
 
-let playingUrl: string | null = null;
-
-export function play(url: string): Promise<void> {
-  stop();
-  playingUrl = url;
+export function play(url: string, onStart?: () => void) {
   console.log("[PLAYER] Playing " + url);
-  return playAudio(url);
+  return playAudio(url, onStart);
 }
 
 export function stop() {
-  if (playingUrl) {
-    stopAudio();
-    console.log("[PLAYER] Stopped");
-    playingUrl = null;
-  }
+  console.log("[PLAYER] Stopped");
+  return stopAudio();
 }
+
+onCleanup(() => void stop());

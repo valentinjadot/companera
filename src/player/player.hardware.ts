@@ -3,4 +3,4 @@ import { stop } from "@/player/playback";
 
 export { play, stop } from "@/player/playback";
 
-onCleanup(stop);
+onCleanup(() => void stop());

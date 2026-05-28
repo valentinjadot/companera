@@ -6,3 +6,5 @@ const impl = await pickImpl(
 );
 
 export const writeOnScreen = impl.writeOnScreen;
+export const startLoadingAnimation = impl.startLoadingAnimation;
+export const stopLoadingAnimation = impl.stopLoadingAnimation;

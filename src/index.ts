@@ -1,12 +1,16 @@
 import { getRandomDecoratedChannel } from "@/channels";
 import { play } from "@/player/player";
-import { writeOnScreen } from "@/screen/screen";
+import {
+  startLoadingAnimation,
+  stopLoadingAnimation,
+  writeOnScreen,
+} from "@/screen/screen";
 import { sleep } from "@/utils/helpers";
 import { onRotaryClick } from "@/rotary-button/rotary-button";
 
 async function main() {
   console.log("[companera] ready — Ctrl+C to stop");
-  writeOnScreen("Hola compañera");
+  writeOnScreen("\n\n\nHola compañera");
   await sleep(2000);
 
   void loadAndPlayRandomChannel();
@@ -16,12 +20,15 @@ async function main() {
 main();
 
 export async function loadAndPlayRandomChannel() {
-  writeOnScreen("Loading...");
+  startLoadingAnimation();
 
   try {
     const channel = await getRandomDecoratedChannel();
-    writeOnScreen(`${channel.title} (${channel.city}, ${channel.country})`);
-    await play(channel.streamUrl);
+    const onStart = () => {
+      stopLoadingAnimation();
+      writeOnScreen(`${channel.title}\n\n${channel.city}\n${channel.country}`);
+    };
+    await play(channel.streamUrl, onStart);
   } catch {
     await loadAndPlayRandomChannel();
   }

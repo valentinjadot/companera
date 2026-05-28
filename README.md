@@ -267,11 +267,11 @@ Or, if you already ran `pnpm install`:
 pnpm run hardware:rebuild
 ```
 
-| Script | What it does |
-| --- | --- |
-| `hardware:setup` | `pnpm install` + native rebuilds (Pi only) |
-| `hardware:rebuild` | `pnpm rebuild` + compile `rpi-io` |
-| `hardware:rpi-io` | Compile `rpi-io` only ([upstream docs](https://www.npmjs.com/package/rpi-io)) |
+| Script             | What it does                                                                  |
+| ------------------ | ----------------------------------------------------------------------------- |
+| `hardware:setup`   | `pnpm install` + native rebuilds (Pi only)                                    |
+| `hardware:rebuild` | `pnpm rebuild` + compile `rpi-io`                                             |
+| `hardware:rpi-io`  | Compile `rpi-io` only ([upstream docs](https://www.npmjs.com/package/rpi-io)) |
 
 Takes about 1 minute on a Zero.
 
