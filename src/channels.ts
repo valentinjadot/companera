@@ -74,26 +74,17 @@ export function getStreamUrl(channelId: string) {
 }
 
 export async function resolveStreamUrl(channelId: string): Promise<string> {
-  const url = getStreamUrl(channelId);
+  const res = await fetch(getStreamUrl(channelId), {
+    headers: {
+      Referer: "https://radio.garden/",
+      "User-Agent": "Mozilla/5.0",
+    },
+    redirect: "follow",
+  });
 
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const res = await fetch(url, {
-      headers: {
-        Referer: "https://radio.garden/",
-        "User-Agent": "Mozilla/5.0",
-      },
-      redirect: "manual",
-    });
-
-    const location = res.headers.get("location");
-    if (location && res.status >= 300 && res.status < 400) {
-      return location;
-    }
-
-    if (res.status !== 401 || attempt === 1) {
-      throw new Error(`Could not resolve stream URL (${res.status})`);
-    }
+  if (!res.ok) {
+    throw new Error(`Could not resolve stream URL (${res.status})`);
   }
 
-  throw new Error("Could not resolve stream URL");
+  return res.url;
 }

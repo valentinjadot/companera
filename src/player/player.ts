@@ -1,45 +1,94 @@
 import MPV from "node-mpv";
 import { onCleanup } from "@/utils/cleanup";
 
-const mpv = new MPV({ audio_only: true }, [
-  ...(process.platform === "linux"
-    ? ["--ao=alsa", "--audio-device=default"]
-    : []),
-  "--volume=50",
-]);
+const mpv = new MPV({ audio_only: true }, mpvArgs());
 
-let intentionalStop = false;
+let playGeneration = 0;
+let loadLock: Promise<void> = Promise.resolve();
+
+function mpvArgs(): string[] {
+  const alsa =
+    process.platform === "linux" ? ["--ao=alsa", "--audio-device=default"] : [];
+
+  return [
+    ...alsa,
+    "--volume=50",
+    "--ytdl=no",
+    "--load-scripts=no",
+  ];
+}
+
+function isStale(generation: number): boolean {
+  return generation !== playGeneration;
+}
+
+async function withLoadLock<T>(fn: () => Promise<T>): Promise<T> {
+  let unlock!: () => void;
+  const locked = new Promise<void>((resolve) => {
+    unlock = resolve;
+  });
+  const previous = loadLock;
+  loadLock = locked;
+  await previous;
+  try {
+    return await fn();
+  } finally {
+    unlock();
+  }
+}
+
+export async function warmUp(): Promise<void> {
+  if (mpv.isRunning()) return;
+  await mpv.start();
+}
 
 export async function stop(): Promise<void> {
-  intentionalStop = true;
-  if (mpv.isRunning()) await mpv.stop().catch(() => {});
+  playGeneration++;
+  if (!mpv.isRunning()) return;
+  await mpv.stop().catch(() => {});
 }
 
 export async function play(url: string, onStart?: () => void): Promise<void> {
-  await stop();
-  intentionalStop = false;
+  let generation = 0;
 
-  console.log("[PLAYER] playing " + url);
+  await withLoadLock(async () => {
+    await stop();
+    generation = playGeneration;
 
-  if (!mpv.isRunning()) await mpv.start();
-  await mpv.load(url, "replace");
+    console.log("[PLAYER] playing " + url);
 
-  console.log("[PLAYER] stream started");
-  onStart?.();
+    if (!mpv.isRunning()) await mpv.start();
+    if (isStale(generation)) return;
 
-  await new Promise<void>((resolve, reject) => {
-    mpv.once("stopped", () =>
-      intentionalStop ? resolve() : reject(new Error("playback stopped")),
-    );
-    mpv.once("crashed", () =>
-      intentionalStop ? resolve() : reject(new Error("mpv crashed")),
-    );
+    await mpv.load(url, "replace");
+    if (isStale(generation)) return;
+
+    console.log("[PLAYER] stream started");
+    onStart?.();
+  });
+
+  if (isStale(generation)) return;
+
+  await waitUntilPlaybackEnds(generation);
+}
+
+function waitUntilPlaybackEnds(generation: number): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const done = (error?: Error) => {
+      if (isStale(generation)) resolve();
+      else if (error) reject(error);
+      else resolve();
+    };
+
+    mpv.once("stopped", () => done(new Error("playback stopped")));
+    mpv.once("crashed", () => done(new Error("mpv crashed")));
   });
 }
 
 async function quit(): Promise<void> {
-  intentionalStop = true;
-  if (mpv.isRunning()) await mpv.quit().catch(() => {});
+  playGeneration++;
+  if (!mpv.isRunning()) return;
+  await mpv.quit().catch(() => {});
 }
 
 onCleanup(() => void quit());

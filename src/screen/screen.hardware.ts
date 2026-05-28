@@ -37,6 +37,8 @@ let interval: ReturnType<typeof setInterval> | null = null;
 const LOADING_FRAME_INTERVAL_MS = 20;
 
 export function startLoadingAnimation() {
+  stopLoadingAnimation();
+
   let frame = 0;
 
   const renderLoadingFrame = () => {

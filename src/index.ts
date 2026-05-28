@@ -1,5 +1,5 @@
 import { getRandomDecoratedChannel } from "@/channels";
-import { play, stop } from "@/player/player";
+import { play, stop, warmUp } from "@/player/player";
 import {
   startLoadingAnimation,
   stopLoadingAnimation,
@@ -8,10 +8,12 @@ import {
 import { sleep } from "@/utils/helpers";
 import { onRotaryClick } from "@/rotary-button/rotary-button";
 
+const WELCOME_SCREEN_MS = 5000;
+
 async function main() {
   console.log("[companera] ready — Ctrl+C to stop");
   writeOnScreen("\n\n\nHola compañera");
-  await sleep(2000);
+  await Promise.all([sleep(WELCOME_SCREEN_MS), warmUp()]);
 
   void loadAndPlayRandomChannel();
   onRotaryClick(loadAndPlayRandomChannel);
@@ -21,6 +23,7 @@ main();
 
 export async function loadAndPlayRandomChannel() {
   startLoadingAnimation();
+  await stop();
 
   try {
     const channel = await getRandomDecoratedChannel();
@@ -29,8 +32,14 @@ export async function loadAndPlayRandomChannel() {
       writeOnScreen(`${channel.title}\n\n${channel.city}\n${channel.country}`);
     };
     await play(channel.streamUrl, onStart);
-  } catch {
-    await stop();
-    await loadAndPlayRandomChannel();
+  } catch (err) {
+    stopLoadingAnimation();
+    writeOnScreen("Falló :(\Haz click de nuevo...");
+    console.error("[companera] playback failed, retrying...", err);
+    try {
+      await stop();
+    } catch (err) {
+      console.error("[companera] failed to stop player", err);
+    }
   }
 }

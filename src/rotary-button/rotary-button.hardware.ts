@@ -11,5 +11,5 @@ onCleanup(() => {
 });
 
 export function onRotaryClick(handler: () => void) {
-  button.monitoringStart(() => handler(), "falling", 50);
+  button.monitoringStart(() => handler(), "falling", 2000);
 }
