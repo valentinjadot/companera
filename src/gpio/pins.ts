@@ -111,7 +111,8 @@ export const AUDIO_DAC = {
   SCK: GPIO_PINS[25], // → GND (pas de MCLK)
   BCK: GPIO_PINS[12], // GPIO18 = PCM_CLK
   DIN: GPIO_PINS[40], // GPIO21 = PCM_DOUT
-  LRCK: GPIO_PINS[35], // GPIO19 = PCM_FS  (silkscreen: LCK)
+  LCK: GPIO_PINS[35], // GPIO19 = PCM_FS  (silkscreen: LCK)
   GND: GPIO_PINS[6], // GND
   VIN: GPIO_PINS[2], // 5V
+  XSMT: GPIO_PINS[1], // 3.3V
 } as const satisfies GpioMapping;
